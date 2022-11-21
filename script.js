@@ -1,54 +1,81 @@
+function formatDate(date) {
+  let hours = date.getHours();
+  if (hours < 10) {
+    hours = `0${hours}`;
+  }
+  let minutes = date.getMinutes();
+  if (minutes < 10) {
+    minutes = `0${minutes}`;
+  }
 
-    h1 {
-      color: #10069f;
-      font-weight: bold;
-    }
-    h2 {
-      color: grey;
-      font-size: 28px;
-      font-weight: bold;
-      margin-top: 15px;
-      text-indent: 20px;
-      padding: 12px 0 12px 0;
-    }
+  let dayIndex = date.getDay();
+  let days = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  let day = days[dayIndex];
 
-    .forecast {
-      font-size: 20px;
-      text-indent: 20px;
-      font-weight: bold;
-      padding: 0;
-      margin: 0 auto;
-    }
-    ul {
-      font-size: 18px;
-      text-align: left;
-      list-style-type: none;
-      line-height: 2;
-      padding: 20;
-    }
+  return `${day}, ${hours}:${minutes}`;
+}
 
-    h5 {
-      text-align: center;
-      font-size: 40px;
-    }
-    .temperature {
-      font-weight: bold;
-      margin-top: 40px;
-    }
-    .week-day {
-      font-size: 18px;
-      font-weight: bold;
-      text-align: center;
-      padding: 10px;
-      margin-top: 15px;
-    }
-    .day-temp {
-      font-size: 15px;
-      text-align: center;
-      padding: 5px;
-    }
+function displayWeatherCondition(response) {
+  console.log(response.data);
+  document.querySelector("#city").innerHTML = response.data.name;
+  document.querySelector("#temperature").innerHTML = Math.round(
+    response.data.main.temp
+  );
+  document.querySelector("#humidity").innerHTML = response.data.main.humidity;
+  document.querySelector("#wind").innerHTML = Math.round(
+    response.data.wind.speed
+  );
+  document.querySelector("#description").innerHTML =
+    response.data.weather[0].main;
+}
 
-    .source {
-      text-decoration: none;
-    }
-  
+function searchLocation(position) {
+  let apiKey = "c9b2fab8822d7cb6aa87e43122039331";
+  let apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=${apiKey}&units=metric`;
+  axios.get(apiUrl).then(displayWeatherCondition);
+}
+function searchCity(city) {
+  let apiKey = "c9b2fab8822d7cb6aa87e43122039331";
+  let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+  axios.get(apiUrl).then(displayWeatherCondition);
+}
+function handleSubmit(event) {
+  event.preventDefault();
+  let city = document.querySelector("#city-input").value;
+  searchCity(city);
+}
+
+function getCurrentLocation(event) {
+  event.preventDefault();
+  navigator.geolocation.getCurrentPosition(searchLocation);
+}
+function convertToFahrenheit(event) {
+  event.preventDefault();
+  let temperatureElement = document.querySelector("#temperature");
+  temperatureElement.innerHTML = 66;
+}
+
+function convertToCelsius(event) {
+  event.preventDefault();
+  let temperatureElement = document.querySelector("#temperature");
+  temperatureElement.innerHTML = 19;
+}
+
+let dateElement = document.querySelector("#date");
+let currentTime = new Date();
+dateElement.innerHTML = formatDate(currentTime);
+
+let searchForm = document.querySelector("#search-form");
+searchForm.addEventListener("submit", handleSubmit);
+
+let currentLocation = document.querySelector("#current-location");
+currentLocation.addEventListener("click", getCurrentLocation);
+searchCity("Bilbao");
